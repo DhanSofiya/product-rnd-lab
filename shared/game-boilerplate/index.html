@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Game Template | R&D Lab</title>
+    <!-- 🏢 Pre-linked Arcade Styles & Hub System -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="arcade-styles.css">
+    <style>
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0; min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        #game-container {
+            width: 800px; height: 600px;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center; border-radius: 30px; padding: 2rem;
+        }
+
+        .question-box { font-size: 2rem; font-weight: 800; margin-bottom: 2rem; }
+        .answer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%; }
+        
+        .ans-btn {
+            padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);
+            background: var(--card-bg); color: white; cursor: pointer; font-size: 1.2rem;
+            transition: 0.2s;
+        }
+        .ans-btn:hover { background: var(--primary); transform: scale(1.02); }
+    </style>
+</head>
+<body>
+
+    <!-- 🕹️ Standard Hub Navigation -->
+    <a href="../../index.html" class="back-to-hub">← Back to Hub</a>
+
+    <div id="game-container" class="glass">
+        <div id="grade-label" style="opacity: 0.5; margin-bottom: 0.5rem; font-weight: 600;">LOADING...</div>
+        <div class="question-box" id="question-text">Ready to Start?</div>
+        
+        <div class="answer-grid" id="answer-grid" style="display: none;">
+            <button class="ans-btn" onclick="checkAnswer(0)">Option 1</button>
+            <button class="ans-btn" onclick="checkAnswer(1)">Option 2</button>
+            <button class="ans-btn" onclick="checkAnswer(2)">Option 3</button>
+            <button class="ans-btn" onclick="checkAnswer(3)">Option 4</button>
+        </div>
+
+        <button class="arc-btn" id="start-btn" onclick="initGame()">🚀 START TEST GAME</button>
+    </div>
+
+    <!-- ⚙️ Shared Game Engine Logic -->
+    <script src="game-engine.js"></script>
+    <script>
+        let currentQ = null;
+
+        async function initGame() {
+            // 1. Fetch Questions using the Boilerplate Engine
+            const questions = await GameEngine.fetchQuestions();
+            
+            document.getElementById('start-btn').style.display = 'none';
+            document.getElementById('answer-grid').style.display = 'grid';
+            
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            // 2. Select a random question from the pool
+            const pool = GameEngine.state.questions;
+            currentQ = pool[Math.floor(Math.random() * pool.length)];
+
+            // 3. Update UI
+            document.getElementById('question-text').innerText = currentQ.question_en;
+            document.getElementById('grade-label').innerText = GameEngine.getGradeLabel(currentQ.grade_id);
+            
+            // 4. Fill Answer Buttons
+            const buttons = document.querySelectorAll('.ans-btn');
+            const options = [currentQ.answer1, currentQ.answer2, currentQ.answer3, currentQ.answer4];
+            
+            buttons.forEach((btn, i) => {
+                btn.innerText = options[i];
+                btn.style.borderColor = 'rgba(255,255,255,0.1)';
+            });
+        }
+
+        function checkAnswer(index) {
+            const buttons = document.querySelectorAll('.ans-btn');
+            const selectedText = buttons[index].innerText;
+
+            if (selectedText === currentQ.correct_answer) {
+                // ✅ Update XP and Hub Stats
+                GameEngine.addXP(10);
+                GameEngine.logQuizCompleted();
+                
+                alert("Correct! +10 XP");
+                nextQuestion();
+            } else {
+                // ❌ Give Effort XP even for wrong answers
+                GameEngine.addXP(2);
+                alert("Wrong! Try again. (+2 XP for effort)");
+            }
+        }
+    </script>
+</body>
+</html>

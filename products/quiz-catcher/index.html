@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Catcher | Learning Product R&D Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --accent: #f43f5e;
+            --bg: #0f172a;
+            --text: #f8fafc;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Outfit', sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #game-header {
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            z-index: 10;
+        }
+
+        .stat-group { display: flex; gap: 2rem; }
+        .stat { display: flex; flex-direction: column; align-items: center; }
+        .stat-val { font-weight: 800; font-size: 1.2rem; color: var(--primary); }
+        .stat-lab { font-size: 0.7rem; opacity: 0.6; text-transform: uppercase; }
+
+        #question-panel {
+            flex: 0 0 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            text-align: center;
+            z-index: 5;
+            background: linear-gradient(to bottom, rgba(30, 41, 59, 0.5), transparent);
+        }
+
+        #question-txt {
+            font-size: 1.8rem;
+            font-weight: 600;
+            max-width: 800px;
+            line-height: 1.2;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        #game-canvas {
+            flex: 1;
+            width: 100%;
+            display: block;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        }
+
+        /* Overlay Screens */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: 0.3s;
+        }
+
+        .overlay h1 { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; }
+        .btn-start {
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+            transition: 0.2s;
+        }
+        .btn-start:hover { transform: scale(1.05); background: var(--secondary); }
+
+        #soft-stop-notif {
+            position: fixed;
+            top: 140px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: rgba(244, 63, 94, 0.9);
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            opacity: 0;
+            transition: 0.5s;
+            pointer-events: none;
+        }
+        #soft-stop-notif.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .back-btn { text-decoration:none; color: #64748b; font-size: 0.9rem; font-weight: 600; }
+        .back-btn:hover { color: white; }
+    </style>
+</head>
+<body>
+
+    <div id="game-header">
+        <a href="../../index.html" class="back-btn">← Back to Hub</a>
+        <div class="stat-group">
+            <div class="stat"><span class="stat-val" id="score">0</span><span class="stat-lab">Score</span></div>
+            <div class="stat"><span class="stat-val" id="lives">3</span><span class="stat-lab">Lives</span></div>
+            <div class="stat"><span class="stat-val" id="streak">0</span><span class="stat-lab">Streak</span></div>
+        </div>
+    </div>
+
+    <div id="question-panel">
+        <div id="question-txt">Loading questions...</div>
+    </div>
+
+    <div id="soft-stop-notif">🔥 10 Correct! You're on a roll!</div>
+
+    <canvas id="game-canvas"></canvas>
+
+    <div id="start-screen" class="overlay">
+        <h1>Quiz Catcher</h1>
+        <p style="margin-bottom: 2rem; opacity: 0.7;">Move the basket to catch the RIGHT answer.</p>
+        <button class="btn-start" onclick="startGame()">START GAME (S)</button>
+        <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.5;">Use Arrow Keys or Mouse</p>
+    </div>
+
+    <div id="game-over-screen" class="overlay" style="display: none;">
+        <h1 style="color: var(--accent);">Game Over</h1>
+        <p id="final-stats" style="margin-bottom: 2rem;">You earned 0 XP</p>
+        <button class="btn-start" onclick="restartGame()">REPLAY</button>
+        <a href="../../index.html" style="margin-top: 2rem; color: white;">Exit to Hub</a>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const questionTxt = document.getElementById('question-txt');
+        
+        let gameState = 'START';
+        let questions = [];
+        let currentQuestion = null;
+        let basket = { x: 0, w: 100, h: 20, glow: 0 };
+        let answers = [];
+        let score = 0;
+        let lives = 3;
+        let streak = 0;
+        let correctThisSession = 0;
+        let lastTime = 0;
+        let spawnTimer = 0;
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight - 120 - 100;
+            basket.x = canvas.width / 2 - basket.w / 2;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Keyboard & Mouse Controls
+        const keys = {};
+        window.addEventListener('keydown', e => { 
+            keys[e.key] = true; 
+            if (e.key === 's' && gameState !== 'PLAY') startGame();
+        });
+        window.addEventListener('keyup', e => keys[e.key] = false);
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            basket.x = e.clientX - rect.left - basket.w / 2;
+        });
+
+        async function loadQuestions() {
+            try {
+                // In R&D we use the sample-questions.csv
+                const res = await fetch('../../shared/sample-questions.csv');
+                const text = await res.text();
+                const lines = text.split('\n').filter(l => l.trim() !== '');
+                const headers = lines[0].split(',');
+                
+                questions = lines.slice(1).map(line => {
+                    const values = line.split(',');
+                    const obj = {};
+                    headers.forEach((h, i) => obj[h.trim()] = values[i].trim());
+                    return obj;
+                });
+                
+                questionTxt.innerText = "Questions Loaded! Press S to Start.";
+            } catch (e) {
+                questionTxt.innerText = "Error loading. Run server.ps1 first.";
+                console.error(e);
+            }
+        }
+
+        function setQuestion() {
+            currentQuestion = questions[Math.floor(Math.random() * questions.length)];
+            questionTxt.innerText = currentQuestion.question_en || currentQuestion.question;
+            answers = [];
+            spawnTimer = 0;
+        }
+
+        function spawnAnswer() {
+            const options = [
+                currentQuestion.answer1, 
+                currentQuestion.answer2, 
+                currentQuestion.answer3, 
+                currentQuestion.answer4
+            ];
+            const text = options[Math.floor(Math.random() * options.length)];
+            const isCorrect = (text === currentQuestion.correct_answer);
+            
+            answers.push({
+                x: Math.random() * (canvas.width - 100) + 50,
+                y: -50,
+                text: text,
+                isCorrect: isCorrect,
+                speed: 2 + Math.random() * 2 + (streak * 0.1)
+            });
+        }
+
+        function startGame() {
+            gameState = 'PLAY';
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-over-screen').style.display = 'none';
+            score = 0; lives = 3; streak = 0; correctThisSession = 0;
+            updateUI();
+            setQuestion();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function restartGame() {
+            startGame();
+        }
+
+        function updateUI() {
+            document.getElementById('score').innerText = score;
+            document.getElementById('lives').innerText = lives;
+            document.getElementById('streak').innerText = streak;
+        }
+
+        function triggerSoftStop() {
+            const notif = document.getElementById('soft-stop-notif');
+            notif.classList.add('show');
+            setTimeout(() => notif.classList.remove('show'), 3000);
+        }
+
+        function gameLoop(timestamp) {
+            if (gameState !== 'PLAY') return;
+
+            const dt = timestamp - lastTime;
+            lastTime = timestamp;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Move Basket
+            if (keys['ArrowLeft']) basket.x -= 8;
+            if (keys['ArrowRight']) basket.x += 8;
+            if (basket.x < 0) basket.x = 0;
+            if (basket.x > canvas.width - basket.w) basket.x = canvas.width - basket.w;
+
+            // Draw Basket
+            ctx.fillStyle = basket.glow > 0 ? (basket.glow === 1 ? '#10b981' : '#f43f5e') : varStyle('--primary');
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = ctx.fillStyle;
+            ctx.fillRect(basket.x, canvas.height - 40, basket.w, basket.h);
+            ctx.shadowBlur = 0;
+            if (basket.glow > 0) basket.glow = 0; // Reset next frame
+
+            // Spawn Logic
+            spawnTimer += dt || 0;
+            if (spawnTimer > 1500) {
+                spawnAnswer();
+                spawnTimer = 0;
+            }
+
+            // Update & Draw Answers
+            for (let i = answers.length - 1; i >= 0; i--) {
+                const a = answers[i];
+                a.y += a.speed;
+
+                // Collision
+                if (a.y > canvas.height - 60 && a.y < canvas.height - 20 && 
+                    a.x > basket.x - 20 && a.x < basket.x + basket.w + 20) {
+                    
+                    if (a.isCorrect) {
+                        score += 10 + (streak * 2);
+                        streak++;
+                        correctThisSession++;
+                        basket.glow = 1; // Green
+                        addXP(10);
+                        if (correctThisSession % 10 === 0) triggerSoftStop();
+                        setQuestion(); // New question when correct caught
+                    } else {
+                        lives--;
+                        streak = 0;
+                        basket.glow = 2; // Red
+                        addXP(2); // Effort XP
+                        if (lives <= 0) endGame();
+                    }
+                    answers.splice(i, 1);
+                    updateUI();
+                    continue;
+                }
+
+                // Missed Correct Answer
+                if (a.y > canvas.height && a.isCorrect) {
+                     // We don't punish missed ones for now as per EdTech principles, but maybe drop streak
+                     streak = 0;
+                     updateUI();
+                }
+
+                if (a.y > canvas.height + 50) {
+                    answers.splice(i, 1);
+                    continue;
+                }
+
+                // Draw Answer Bubble
+                ctx.fillStyle = 'rgba(255,255,255,0.1)';
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.beginPath();
+                ctx.roundRect(a.x - 50, a.y, 100, 30, 15);
+                ctx.fill();
+                ctx.stroke();
+                
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 14px Outfit';
+                ctx.textAlign = 'center';
+                ctx.fillText(a.text, a.x, a.y + 20);
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function endGame() {
+            gameState = 'OVER';
+            document.getElementById('game-over-screen').style.display = 'flex';
+            document.getElementById('final-stats').innerText = `You earned ${correctThisSession * 10} XP total!`;
+            // Persistent stats in localStorage for the Hub
+            let totalQuiz = parseInt(localStorage.getItem('lab_quiz_count')) || 0;
+            localStorage.setItem('lab_quiz_count', totalQuiz + correctThisSession);
+        }
+
+        function addXP(amount) {
+            let xp = parseInt(localStorage.getItem('lab_xp')) || 0;
+            localStorage.setItem('lab_xp', xp + amount);
+        }
+
+        function varStyle(name) {
+            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        }
+
+        loadQuestions();
+    </script>
+</body>
+</html>

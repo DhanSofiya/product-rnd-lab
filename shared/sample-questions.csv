@@ -1,0 +1,7 @@
+subject,grade_id,theme,chapter,topic_id,question_en,question_my,question_cn,answer1,answer2,answer3,answer4,correct_answer
+Mathematics,F1,Algebra,Chapter 5,ALG-01,What is 5 + 7?,Berapakah 5 + 7?,5 + 7 是多少?,12,10,13,11,12
+Mathematics,F1,Algebra,Chapter 5,ALG-01,Solve for x: x - 3 = 5,Selesaikan x: x - 3 = 5,解方程 x: x - 3 = 5,8,2,-8,15,8
+Mathematics,F1,Algebra,Chapter 6,ALG-02,What is the square root of 64?,Apakah punca kuasa dua bagi 64?,64 的平方根是多少?,8,6,7,9,8
+Mathematics,F1,Algebra,Chapter 6,ALG-02,Simplify 2x + 3x,Permudahkan 2x + 3x,简化 2x + 3x,5x,6x,x,5,5x
+Mathematics,F2,Algebra,Chapter 2,ALG-03,If y = 10 and x = 2 what is y/x?,Jika y = 10 dan x = 2 apakah y/x?,如果 y = 10 且 x = 2 y/x 是多少?,5,20,8,2,5
+Science,Y6,Physical Science,Chapter 1,SCI-Y6-01,What is the boiling point of water?,Apakah takat didih air?,水的沸点是多少?,100 C,90 C,110 C,0 C,100 C

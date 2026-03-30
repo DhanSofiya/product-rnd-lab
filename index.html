@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Product R&D Lab | Game Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --accent: #f43f5e;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        header {
+            width: 100%;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .user-stats {
+            display: flex;
+            gap: 1.5rem;
+            background: var(--card-bg);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
+
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 1200px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .hero {
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.7;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.75rem 2rem;
+            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-thumb {
+            width: 100%;
+            height: 180px;
+            background: #1e293b;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            transition: 0.4s;
+        }
+
+        .game-card:hover .game-thumb {
+            transform: scale(1.05);
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+        }
+
+        .game-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-info p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .play-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .play-btn:hover {
+            background: var(--secondary);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        footer {
+            padding: 3rem;
+            opacity: 0.4;
+            font-size: 0.8rem;
+        }
+
+        /* Subtle Soft Stop Notification */
+        #soft-stop {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(244, 63, 94, 0.4);
+            font-weight: 600;
+            transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            z-index: 1000;
+        }
+
+        #soft-stop.show {
+            bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">PANDAI R&D LAB</div>
+        <div class="user-stats">
+            <div class="stat-item">
+                <span class="stat-value" id="user-level">1</span>
+                <span class="stat-label">Level</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="user-xp">0</span>
+                <span class="stat-label">Total XP</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value" id="questions-done">0</span>
+                <span class="stat-label">Quiz</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Game Mode Hub</h1>
+            <p>Level up your knowledge with our experimental arcade learning games.</p>
+        </section>
+
+        <div class="tabs">
+            <div class="tab active">ARCADE MODE</div>
+            <div class="tab">TEST MODE</div>
+        </div>
+
+        <div class="game-grid">
+            <div class="game-card" onclick="location.href='products/quiz-catcher/index.html'">
+                <div class="status-badge">Live Beta</div>
+                <div class="game-thumb">📥</div>
+                <div class="game-info">
+                    <h3>Quiz Catcher</h3>
+                    <p>Catch the right answers with your basket! Fast-paced algebraic and topical revision.</p>
+                    <button class="play-btn">Play Now</button>
+                </div>
+            </div>
+
+            <div class="game-card" style="opacity: 0.5; cursor: not-allowed;">
+                <div class="status-badge" style="background: rgba(255,255,255,0.1); color: #ccc;">Coming Soon</div>
+                <div class="game-thumb">🚀</div>
+                <div class="game-info">
+                    <h3>Future Game</h3>
+                    <p>New experimental mechanics being tested in the lab.</p>
+                    <button class="play-btn" disabled>Locked</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="soft-stop">🔥 You're on fire! 10 questions done already!</div>
+
+    <footer>
+        &copy; 2026 Pandai Education Sdn Bhd | Learning Product R&D Lab
+    </footer>
+
+    <script>
+        // Global XP Logic (Simplified for Prototype)
+        let xp = parseInt(localStorage.getItem('lab_xp')) || 0;
+        let level = 1;
+        let quizCount = parseInt(localStorage.getItem('lab_quiz_count')) || 0;
+
+        function updateStats() {
+            // Level = log base 1.5 of (xp/100 + 1)
+            level = Math.floor(Math.log(xp/100 + 1) / Math.log(1.5)) + 1;
+            document.getElementById('user-level').innerText = level;
+            document.getElementById('user-xp').innerText = xp;
+            document.getElementById('questions-done').innerText = quizCount;
+        }
+
+        updateStats();
+
+        // Listen for XP events from iframe (if we used an iframe) or storage
+        window.addEventListener('storage', updateStats);
+    </script>
+</body>
+</html>

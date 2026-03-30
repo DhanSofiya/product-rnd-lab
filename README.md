@@ -83,7 +83,7 @@ learning-product-rnd-lab/
 │  └─ all-products.md
 │
 ├─ products/
-│  ├─ game-five/
+│  ├─ quiz-catcher/
 │  │  ├─ prd.md
 │  │  ├─ rnd-log.md
 │  │  ├─ testing.md

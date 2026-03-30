@@ -1,0 +1,49 @@
+/* 🎨 Arcade Style Tokens (Shared) */
+:root {
+    --primary: #6366f1;
+    --secondary: #a855f7;
+    --accent: #f43f5e;
+    --bg: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --text: #f8fafc;
+    --success: #10b981;
+}
+
+/* 🧱 Common UI Components */
+.arc-btn {
+    padding: 0.75rem 2rem;
+    border-radius: 12px;
+    background: var(--primary);
+    border: none;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+    transition: 0.2s;
+}
+
+.arc-btn:hover {
+    transform: translateY(-2px);
+    background: var(--secondary);
+}
+
+.back-to-hub {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    color: #64748b;
+    text-decoration: none;
+    font-weight: 600;
+    z-index: 1000;
+}
+
+.back-to-hub:hover {
+    color: white;
+}
+
+/* 🧊 Glassmorphism Effect */
+.glass {
+    background: var(--card-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
