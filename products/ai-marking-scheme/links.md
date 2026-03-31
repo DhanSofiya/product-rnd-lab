@@ -7,3 +7,7 @@
 *   [ClickUp Task: AI Marking Scheme for Existing Subjective Questions](https://app.clickup.com/t/86d2b1fvm)
 *   [Testing Sheet: Toggle Off & Publish Answer Immediately](https://docs.google.com/spreadsheets/d/17Mm9gNBfv46h_VjFhr_IAPWbS-4A3lhGjkH1au6cutM/edit?gid=0#gid=0)
     *(Note: This public sheet contains the actual Test Cases tracking for the Toggle Off and Immediate/Later publishing flows).*
+### 🛠 Engineering (Private Repo)
+*   [(Phase 1 - Student Facing) Diversify product offering to reflect actual Exam Experience #3425](https://github.com/mupmzfqot/pandai.question/issues/3425)
+*   [Exam Experience, AI Grading Open Ended Questions (App) #4395](https://github.com/mupmzfqot/pandai.question/issues/4395)
+*   [Apply AI Marking Indicators for Subjective Questions (App) #4665](https://github.com/mupmzfqot/pandai.question/issues/4665#issuecomment-4153277319)
